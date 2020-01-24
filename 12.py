@@ -1,4 +1,6 @@
-## Problem: Velocity at t+1 = velocity at t + velocity at t+1
+from aocd import Puzzle
+import itertools
+
 moons = ["<x=-1, y=0, z=2>", "<x=2, y=-10, z=-7>", 
  "<x=4, y=-8, z=8>", "<x=3, y=5, z=-1>"]
 
@@ -11,15 +13,15 @@ data = puzzle.input_data
 
 moons = data.split("\n")
 
-initial = {}
-names = ["Io", "Europa", "Ganymede", "Callisto"]
+
+initial_pos = {}
+names = [0, 1, 2, 3]
 for i, element in enumerate(moons):
     x = int(element.split(",")[0].split("=")[1])
     y = int(element.split(",")[1].split("=")[1])
     z = int(element.split(",")[2].split("=")[1][:-1])
-    initial[names[i]] = (x, y, z)
+    initial_pos[names[i]] = (x, y, z)
     
-moons_pos.append(initial)
 
 #one idea: parallelization/multithreading + write to sql
 # no jupyter
@@ -63,21 +65,56 @@ def calculate_position(position, velocity):
             pos_values.append(pos)
         positions[planet] = tuple(pos_values)
     return positions
+
+def write_to_dict(moon_dict, moon, pos, step):
+    try:
+        moon_dict[pos][moon].append(step)
+    except:
+        moon_dict[pos] = {0: (), 
+                          1: (),
+                          2: (),
+                          3: ()}
+        moon_dict[pos][moon].append(step)
+
             
 
 
-def main(initial_pos, steps = 100):
+def main(initial_pos):
     all_velocities = {}
-    all_
+    all_positions = {}
     moon_velocity = {}
+    
     for moon in names: 
         moon_velocity[moon] = (0,0,0)
+        write_to_dict(all_velocities, moon, (0,0,0), 0)
+        wri
+        try: 
+            all_velocities[moon_velocity[moon]][moon].append(0)
+        except:
+            all_velocities[moon_velocity[moon]] = {0: (),
+                                                   1: (), 
+                                                   2: (),
+                                                   3: ()}            
+            all_velocities[moon_velocity[moon]][moon].append(0)
+
+        try: 
+            all_positions[initial_pos[moon]][moon].append(0)
+        except: 
+            all_positions[initial_pos[moon]][moon] =   {0: [],
+                                                   1: [], 
+                                                   2: [],
+                                                   3: []}
+            all_positions[moon_velocity[moon]][moon].append(0)
+
+        
+            
 
     moon_pos = initial_pos
     #print(moons_pos)
+    
     step = 0
     dupes = False
-    while dupes == False:
+    while not dupes:
         velocities = {}
         for permutation in itertools.permutations(moon_pos, 2):
             velo = calculate_difference(moon_pos, permutation[0], permutation[1])
@@ -89,30 +126,43 @@ def main(initial_pos, steps = 100):
         #print(velocities)
 
         final_velocities = {}
-        for planet in initial.keys():
-            vel = calculate_total_velocity(velocities, planet, moon_velocity)
-            final_velocities[planet] = vel
+        for moon in initial_pos.keys():
+            vel = calculate_total_velocity(velocities, moon, moon_velocity)
+            final_velocities[moon] = vel
 
         moon_velocity = final_velocities
-        #print(moon_velocity)
+        print(moon_velocity)
         positions = calculate_position(moon_pos, moon_velocity)
         moons_pos = positions
+        for moon in names: 
+            try: 
+                all_velocities[moon_velocity[moon]][moon].append(step)
+            except:
+                all_velocities[moon_velocity[moon]] = {0: (),
+                                                   1: (), 
+                                                   2: (),
+                                                   3: ()}
+                all_velocities[moon_velocity[moon]][moon].append(step)
+        
+            try: 
+                all_positions[moon_pos[moon]][moon].append(step)
+            except: 
+                all_positions[moon_pos[moon]][moon] = {0: (),
+                                                   1: (), 
+                                                   2: (),
+                                                   3: ()}
+                all_positions[moon_pos[moon][moon]].append(step)
 
+            #if len(all_positions[moon_pos][moon]]) > 1:
         step += 1
-        
+        if step == 10:
+            dupes=True
 
         
-            moon_pos_list = moons_pos[step][moon]
-            moon_velo_list = moon_velocity[step][moon]
-            pot_energy = abs(moon_pos_list[0]) + abs(moon_pos_list[1]) + abs(
-                moon_pos_list[2])
-            kin_energy = abs(moon_velo_list[0]) + abs(moon_velo_list[1]) + abs(moon_velo_list[2])
-            total = pot_energy * kin_energy
-            energy += total
-        energy_all.append(energy)
-    return energy_all
 
-print(main(initial, steps = 1001)[1000])
+
+        
+print(main(initial)[10])
 
     
     
